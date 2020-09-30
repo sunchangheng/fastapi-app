@@ -28,6 +28,8 @@ class TestConfig(BaseSettings):
 
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}?charset=utf8mb4"
 
+    USERS_OPEN_REGISTRATION = True  # 是否开方注册 （True 开放）（False 未开放）
+
 
 # class ProConfig(BaseSettings):
 #     """
