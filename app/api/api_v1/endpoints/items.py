@@ -3,18 +3,19 @@
 # Date: 2020/9/29
 # Author: Jimmy
 
-from typing import Any, List
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.services.response import StandardResponse, ErrorResponse
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Item], summary="item列表")
+@router.get("/", summary="item列表")
 def read_items(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
@@ -31,10 +32,11 @@ def read_items(
         items = crud.item.get_multi_by_owner(
             db=db, owner_id=current_user.id, skip=skip, limit=limit
         )
-    return items
+
+    return StandardResponse(items)
 
 
-@router.post("/", response_model=schemas.Item, summary="新增item")
+@router.post("/", summary="新增item")
 def create_item(
         *,
         db: Session = Depends(deps.get_db),
@@ -45,10 +47,11 @@ def create_item(
     Create new item.
     """
     item = crud.item.create_with_owner(db=db, obj_in=item_in, owner_id=current_user.id)
-    return item
+
+    return StandardResponse(item)
 
 
-@router.put("/{pk}", response_model=schemas.Item, summary="更新item")
+@router.put("/{pk}", summary="更新item")
 def update_item(
         *,
         db: Session = Depends(deps.get_db),
@@ -62,14 +65,17 @@ def update_item(
     """
     item = crud.item.get(db=db, id=pk)
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise ErrorResponse(3001, status_code=404)
+
     if not crud.user.is_superuser(current_user) and (item.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+        raise ErrorResponse(3003)
+
     item = crud.item.update(db=db, db_obj=item, obj_in=item_in)
-    return item
+
+    return StandardResponse(item)
 
 
-@router.get("/{pk}", response_model=schemas.Item, summary="item详情")
+@router.get("/{pk}", summary="item详情")
 def read_item(
         *,
         db: Session = Depends(deps.get_db),
@@ -82,13 +88,15 @@ def read_item(
     """
     item = crud.item.get(db=db, id=pk)
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise ErrorResponse(3001, status_code=404)
+
     if not crud.user.is_superuser(current_user) and (item.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    return item
+        raise ErrorResponse(3003)
+
+    return StandardResponse(item)
 
 
-@router.delete("/{pk}", response_model=schemas.Item, summary="删除item")
+@router.delete("/{pk}", summary="删除item")
 def delete_item(
         *,
         db: Session = Depends(deps.get_db),
@@ -101,8 +109,11 @@ def delete_item(
     """
     item = crud.item.get(db=db, id=pk)
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise ErrorResponse(3001, status_code=404)
+
     if not crud.user.is_superuser(current_user) and (item.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+        raise ErrorResponse(3003)
+
     item = crud.item.remove(db=db, pk=pk)
-    return item
+
+    return StandardResponse(item)
