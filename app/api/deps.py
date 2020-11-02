@@ -1,14 +1,12 @@
 from typing import Generator
 
 import jose
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from app import crud, models, schemas
-from app.core import security
+from app import crud, models
 from app.core.config import settings
 from app.core.security import ALGORITHM
 from app.db.session import SessionLocal
@@ -52,7 +50,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
 
 
 def get_current_active_user(
-    current_user: models.User = Depends(get_current_user),
+        current_user: models.User = Depends(get_current_user),
 ) -> models.User:
     """
     验证是否是已激活的用户
@@ -63,7 +61,7 @@ def get_current_active_user(
 
 
 def get_current_active_superuser(
-    current_user: models.User = Depends(get_current_user),
+        current_user: models.User = Depends(get_current_user),
 ) -> models.User:
     """
     验证是否是超级管理员
