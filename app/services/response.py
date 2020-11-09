@@ -65,4 +65,13 @@ class StandardResponse(object):
 
 class PaginateResponse(object):
     """分页查询的响应格式"""
-    pass
+
+    def __new__(cls, page, size, total, pages, datas):
+        data = {
+            'page': page,
+            'size': size,
+            'total': total,
+            'pages': pages,
+            'items': datas
+        }
+        return StandardResponse(data)

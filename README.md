@@ -32,14 +32,14 @@
 
 ## TODO列表
 - [x] SQLAlchemy+MySQL
-- [ ] token验证
+- [x] token验证
 - [x] alembic数据库迁移
 - [ ] Celery 队列,定时任务等
 
 
 ## 项目结构
 
-> 本项目目录结构参考**官方全栈项目框架生成器**生成的简洁版后端框架
+> 本项目目录结构参考 [full-stack-fastapi-postgresql](https://github.com/tiangolo/full-stack-fastapi-postgresql) 生成的简洁版后端框架
 
 ```shell
 .
