@@ -52,7 +52,8 @@ class ErrorResponse(object):
 
         result = {'status': error_code, 'message': message}
 
-        return HTTPException(status_code=status_code, detail=result)
+        return JSONResponse(content=result)
+        # raise HTTPException(status_code=status_code, detail=result)
 
 
 class StandardResponse(object):
