@@ -1,47 +1,42 @@
-#!./usr/bin/env python
+#!./usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Date: 2020/11/2
-# Author: Jimmy
-
+# Date: 2021/8/23
+# Author: sunchangheng
 """
 自定义响应封装
 """
+
 from fastapi import HTTPException
 
-APICODE = {
-    1001: "成功",
+api_code = {
     # 全局API错误码
     1002: "参数类型错误",
     1003: "缺少必传参数",
     1004: "参数长度错误",
     1005: "json数据格式有误",
     1006: "其他错误类型",
-    1051: "token已过期",
-    1052: "token无效",
+    1051: "登录凭证已过期, 请重新登录",
+    1052: "Token无效",
     1053: "用户不存在",
+    1055: "Token为空",
+    1057: "密码错误",
 
-    2001: "邮箱/密码不正确",
-    2002: "用户未激活",
-    2003: "当前用户没有足够的权限",
-
-    2005: "用户已存在",
-    2007: "Open user registration is forbidden on this server",
-    2009: "The user doesn't have enough privileges",
-    2010: "The user with this username does not exist in the system",
-
-    3001: "Item not found",
-    3003: "Not enough permissions"
-
+    # 其他异常
+    -1: "",
 }
 
 
-class ErrorResponse(object):
+class ErrorResponse(HTTPException):
     """失败的响应格式"""
 
-    def __new__(cls, error_code, message=None, status_code=400):
+    def __new__(cls, error_code, message=None, data=(), status_code=200):
+        if type(error_code) is str:
+            result = {"code": -1, "msg": error_code, "data": data}
+            return HTTPException(status_code=status_code, detail=result)
+
         try:
             if message is None:
-                message = APICODE[error_code]
+                message = api_code[error_code]
         except KeyError:
             err = (
                 "You use an undefined `code` without param `message` "
@@ -50,17 +45,16 @@ class ErrorResponse(object):
             )
             raise Exception(err)
 
-        result = {'status': error_code, 'message': message}
+        result = {"code": error_code, "msg": message, "data": data}
 
-        return JSONResponse(content=result)
-        # raise HTTPException(status_code=status_code, detail=result)
+        return HTTPException(status_code=status_code, detail=result)
 
 
 class StandardResponse(object):
     """成功的响应格式"""
 
-    def __new__(cls, data, code=1001):
-        result = {'status': code, 'data': data, 'message': APICODE[code]}
+    def __new__(cls, data=(), msg="success"):
+        result = {"code": 0, "data": data, "msg": msg}
         return result
 
 
